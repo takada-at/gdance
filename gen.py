@@ -41,6 +41,7 @@ class Generator(object):
             for pos in range(self.nodesize):
                 pasts = map(lambda x: x[pos], pastnodes)
                 nodes[pos] = self.gen_chain(pasts, self.sequ_dict[pos])
+                #nodes[pos] = self.gen_chain([pre[pos]], self.sequ_dict[pos])
             pastnodes = pastnodes[1:]
             pastnodes.append(nodes)
             res.append(nodes)
@@ -104,7 +105,8 @@ def fromfile(fname):
     cnt = 0
     frames = []
     for line in f:
-        contents.append( line.rstrip() )
+        if state == 0 or state==1:
+            contents.append( line.rstrip() )
         if reg.match(line):
             state = 1
         else:
@@ -118,7 +120,7 @@ def fromfile(fname):
     for seq in frames:
         nodes = []
         for nodeid, val in enumerate(seq):
-            roundv = round(val, 1)
+            roundv = round(val, 0)
             orgvdict[roundv].append(val)
             nodes.append((nodeid, roundv, val))
         seqdatas.append(nodes)
@@ -161,6 +163,13 @@ def read(fname):
     gen = Generator()
     gen.calc(seqdatas)
     return gen
+def output(inputfile, filename):
+    lines = fromfile(inputfile)
+    io = open(filename, 'w')
+    for line in lines:
+        io.write(line + "¥n")
+        io.write("¥n")
+    io.close()
 def main():
     parser = OptionParser()
     (options, args) = parser.parse_args()
